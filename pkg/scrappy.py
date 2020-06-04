@@ -1,30 +1,40 @@
-from selenium import webdriver
+import json
 from time import sleep
-
+from webbot import Browser
+from bs4 import BeautifulSoup
 
 
 class SDscraper:
-    def __init__(self, benutzername, pw):
-        self.driver = webdriver.Chrome("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
-        self.id = id
-        self.benutzername = benutzername
-        self.driver.get("https://instagram.com")
+    def __init__(self):
+        self.web = Browser()
+        self.web.go_to("https://www.studydrive.net/de")
+        self.web.click('Anmelden')
         sleep(2)
-        self.driver.find_element_by_xpath("//a[contains(text(), 'Anmelden')]").click()
+
+    def login(self):
+        with open("login.json", "r") as lg:
+            LG = json.load(lg)
+        self.benutzername = LG['email']
+        self.pw = LG['password']
+        self.web.type(self.benutzername, into="E-Mail")
+        self.web.type(self.pw, into="Passwort")
         sleep(2)
-        self.driver.find_element_by_xpath("//input[@name=\"E-Mail\"]")\
-            .send_keys(benutzername)
-        self.driver.find_element_by_xpath("//input[@name=\"Passwort\"]")\
-            .send_keys(pw)
-        self.driver.find_element_by_xpath('//button[@type="Anmelden"]') \
-            .click()
-        sleep(4)
 
-    def print_shit(self):
-        print("hi")
+        self.web.click('Anmelden')
 
+
+    def go_to_course(self):
+        self.web.click("Mathematik")
+        sleep(5)
+
+    def scrape(self):
+        page = self.web.get_page_source()
+        soup = BeautifulSoup(page, 'html.parser')
+        print(soup.get_text())
 
 
 if __name__ == "__main__":
-    sds = SDscraper("antonthielmann@t-online.de", "passwd")
-    sds.print_shit()
+    sds = SDscraper()
+    sds.login()
+    sds.go_to_course()
+    sds.scrape()
