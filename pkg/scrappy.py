@@ -29,8 +29,11 @@ class SDscraper:
 
     def scrape(self):
         page = self.web.get_page_source()
-        soup = BeautifulSoup(page, 'html.parser')
-        print(soup.get_text())
+        soup = BeautifulSoup(page, 'html')
+        #print(soup.get_text())
+        tags = soup.find_all('div', {"class":"text-area-read"})
+        for t in tags:
+            print(t.text)
 
 
 if __name__ == "__main__":
