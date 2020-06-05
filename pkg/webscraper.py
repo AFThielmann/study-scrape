@@ -1,22 +1,26 @@
 import json
+import pandas as pd
 import webbot
 import time
 import bs4
 
 
 class WebScraper:
+    """
+    WebScraper
+    """
     def __init__(self):
         self.url = "https://www.studydrive.net/de"
         self.web = webbot.Browser()
-        self.delay = 3
+        self.delay = 1
     
     def login(self, lg):
         self.web.go_to(self.url)
         self.web.click('Anmelden')
         time.sleep(self.delay)
-        self.web.type(lg['email'], into='E-Mail')
+        self.web.type(lg['email'], into = 'E-Mail')
         time.sleep(self.delay)
-        self.web.type(lg['password'], into='Passwort')
+        self.web.type(lg['password'], into = 'Passwort')
         time.sleep(self.delay)
         self.web.click('Anmelden')
 
@@ -28,18 +32,30 @@ class WebScraper:
         time.sleep(self.delay)
         page = self.web.get_page_source()
         soup = bs4.BeautifulSoup(page)
-        return soup
+        texts = soup.find_all('div', {'class' : 'text-area-read'})
+        users = soup.find_all('div', {'class' : 'user-name'})
+        df_list = []
+        qc_key_words = ['Minuten', 'Stunden', 'Wochen', 'Monaten']
+        for t, u in zip(texts, users):
+            text = t.text.strip()
+            text = text.replace('\n', ' ')
+            user = u.text.strip()
+            qc_type = 'C' if any(w in user for w in qc_key_words) else 'Q'
+            user = user.split('\n')[0].strip()
+            df_dict = {'text' : text, 'user' : user, 'type' : qc_type}
+            df_list.append(df_dict) 
+        return pd.DataFrame(df_list)
         
 
 if __name__ == "__main__":
     ws = WebScraper()
     with open("login.json", "r") as lg:
         LG = json.load(lg)
-    ws.login(lg=LG)
-    KURSE = ['Informatik', 'Mathematik']
+    ws.login(lg = LG)
+    KURSE = ['Mathematik']
     for kurs in KURSE:
         ws.go_to_course(course = kurs)
-        text = ws.scrape()
-        print(text)
-
+        df = ws.scrape()
+        print(df)
+        df.to_csv('test.csv')
 
