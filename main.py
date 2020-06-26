@@ -2,23 +2,6 @@ import json
 from pkg import WebScraper, EmailSender
 import pandas as pd
 
-
-def send_email(temperature):
-    fromaddr = "a.f.fertig@gmail.com"
-    toaddr = "afthielmann1@gmail.com"
-    msg = MIMEMultipart()
-    msg['From'] = fromaddr
-    msg['To'] = toaddr
-    msg['Subject'] = "Alert: Server Room  "
-    body = "Server room current temprature is : " + temperature
-    msg.attach(MIMEText(body, 'plain'))
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(fromaddr, "ffvol28g")
-    text = msg.as_string()
-    server.sendmail(fromaddr, toaddr, text)
-    server.quit()
-
 ws = WebScraper()
 es = EmailSender()
 with open("pkg/login.json", "r") as lg:
@@ -44,7 +27,7 @@ for kurs in KURSE:
 
 
 # words to filter by, all lowercase
-word_list = ["mathe", "eco", "herleitung", "ableitung"]
+word_list = ["ecoreps"]
 
 df = pd.concat(df_list)
 
@@ -56,8 +39,6 @@ df = df[df['text'].apply(lambda x: any([k in x for k in word_list]))]
 df = df.reset_index(drop=True)
 
 df_old = pd.read_csv('df.csv')
-
-
 
 
 
