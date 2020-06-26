@@ -42,7 +42,7 @@ df_old = pd.read_csv('df.csv')
 
 
 
-if df.equals(df_old)==False:
+if df.equals(df_old)==False and df.empty==False:
     print('there is new content')
 
     df_both = pd.concat([df, df_old])
